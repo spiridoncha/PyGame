@@ -58,6 +58,8 @@ class Ball:
 
     def action(self):
         '''Proceed some action'''
+        self.surface = pygame.transform.rotate(self.surface, 90)
+        self.rect = self.surface.get_rect(center=self.rect.center)
         if self.active:
             self.pos = self.pos[0]+self.speed[0], self.pos[1]+self.speed[1]
 
