@@ -130,7 +130,12 @@ class GameWithDnD(GameWithObjects):
         self.oldpos = 0,0
         self.drag = None
 
+    def itIsBall(self, pos):
+        #mask
+        return True
     def Events(self, event):
+        if event.type in set([pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP]) and not self.itIsBall(event.pos):
+            return
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             click = self.locate(event.pos)
             if click:
