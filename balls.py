@@ -58,8 +58,6 @@ class Ball:
 
     def action(self):
         '''Proceed some action'''
-        self.surface = pygame.transform.rotate(self.surface, 90)
-        self.rect = self.surface.get_rect(center=self.rect.center)
         if self.active:
             self.pos = self.pos[0]+self.speed[0], self.pos[1]+self.speed[1]
 
@@ -81,6 +79,31 @@ class Ball:
         self.pos = x,y
         self.speed = dx,dy
         self.rect.center = intn(*self.pos)
+
+class RotateBall(Ball):
+    '''Rotate Ball class'''
+
+    def __init__(self, filename, pos = (0.0, 0.0), speed = (0.0, 0.0), angle = 90, scale = 1):
+        '''Create a ball from image'''
+        self.fname = filename
+        self.surface = pygame.image.load(filename)
+        x, y = self.surface.get_size()
+        self.surface = pygame.transform.scale(self.surface, (int(scale*x), int(scale*y)))
+        self.rect = self.surface.get_rect()
+        self.speed = speed
+        self.pos = pos
+        self.angle = angle
+        self.scale = scale
+        self.newpos = pos
+        self.active = True
+        self.mask = pygame.mask.from_surface(self.surface)
+
+    def action(self):
+        if self.active:
+            self.surface = pygame.transform.rotate(self.surface, self.angle)
+            self.rect = self.surface.get_rect(center=self.rect.center)
+            self.pos = self.pos[0]+self.speed[0], self.pos[1]+self.speed[1]
+
 
 class Universe:
     '''Game universe'''
@@ -130,23 +153,38 @@ class GameWithDnD(GameWithObjects):
         self.oldpos = 0,0
         self.drag = None
 
-    def itIsBall(self, pos):
+    def itIsRotateBall(self, pos):
         #mask
-        return True
+        for i in self.objects:
+            print((pos[0] - i.rect.topleft[0]), (pos[1] - i.rect.topleft[1]))
+            try:
+                if i.mask.get_at((pos[0] - i.rect.topleft[0], pos[1] - i.rect.topleft[1])):
+                    return True
+            except:
+                pass
+        return False
+
     def Events(self, event):
-        if event.type in set([pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP]) and not self.itIsBall(event.pos):
-            return
+        events = set([pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION])
+        #if event.type in events:
+        #    if not self.itIsRotateBall(event.pos):
+        #        print 1
+        #        return
+        #    elif self.oldpos:
+        #        if not self.itIsRotateBall(self.oldpos):
+        #            print 2
+        #            return
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             click = self.locate(event.pos)
             if click:
                 self.drag = click[0]
                 self.drag.active = False
                 self.oldpos = event.pos
-        elif event.type == pygame.MOUSEMOTION and event.buttons[0]:
-                if self.drag:
-                    self.drag.pos = event.pos
-                    self.drag.speed = event.rel
-        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+        if event.type == pygame.MOUSEMOTION and event.buttons[0]:
+            if self.drag:
+                self.drag.pos = event.pos
+                self.drag.speed = event.rel
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.drag.active = True
             self.drag = None
         GameWithObjects.Events(self, event)
@@ -158,7 +196,9 @@ Run = GameWithDnD()
 for i in xrange(5):
     x, y = random.randrange(screenrect.w), random.randrange(screenrect.h)
     dx, dy = 1+random.random()*5, 1+random.random()*5
-    Run.objects.append(Ball("ball.gif",(x,y),(dx,dy)))
+    angle = 90
+    scale = 0.3 + random.random()
+    Run.objects.append(RotateBall("ball.gif",(x,y),(dx,dy), angle, scale))
 
 Game.Start()
 Run.Init()
