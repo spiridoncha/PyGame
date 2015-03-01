@@ -85,17 +85,12 @@ class RotateBall(Ball):
 
     def __init__(self, filename, pos = (0.0, 0.0), speed = (0.0, 0.0), angle = 90, scale = 1):
         '''Create a ball from image'''
-        self.fname = filename
-        self.surface = pygame.image.load(filename)
+        Ball.__init__(self, filename, pos, speed)
         x, y = self.surface.get_size()
         self.surface = pygame.transform.scale(self.surface, (int(scale*x), int(scale*y)))
         self.rect = self.surface.get_rect()
-        self.speed = speed
-        self.pos = pos
         self.angle = angle
         self.scale = scale
-        self.newpos = pos
-        self.active = True
         self.mask = pygame.mask.from_surface(self.surface)
 
     def action(self):
@@ -182,13 +177,22 @@ class GameWithDnD(GameWithObjects):
                 self.drag = None
         GameWithObjects.Events(self, event)
 
+class GameWithDnDAndGravity(GameWithDnD):
+    def Events(self, event):
+        print self.objects[0].speed
+        for obj in self.objects:
+            if obj.active and event.type == Game.tickevent:
+                obj.speed = (obj.speed[0], obj.speed[1] + 0.1) 
+        GameWithDnD.Events(self, event)
+
 Init(SIZE)
 Game = Universe(50)
 
-Run = GameWithDnD()
+Run = GameWithDnDAndGravity()
 for i in xrange(5):
     x, y = random.randrange(screenrect.w), random.randrange(screenrect.h)
-    dx, dy = 1+random.random()*5, 1+random.random()*5
+    #dx, dy = 1+random.random()*5, 1+random.random()*5
+    dx , dy = 0, 0
     angle = 90
     scale = 0.3 + random.random()
     Run.objects.append(RotateBall("ball.gif",(x,y),(dx,dy), angle, scale))
