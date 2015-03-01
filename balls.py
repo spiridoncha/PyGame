@@ -150,13 +150,13 @@ class GameWithDnD(GameWithObjects):
 
     def __init__(self, *argp, **argn):
         GameWithObjects.__init__(self, *argp, **argn)
-        self.oldpos = 0,0
+        self.oldposInBall = False
         self.drag = None
 
     def itIsRotateBall(self, pos):
         #mask
         for i in self.objects:
-            print((pos[0] - i.rect.topleft[0]), (pos[1] - i.rect.topleft[1]))
+            #print((pos[0] - i.rect.topleft[0]), (pos[1] - i.rect.topleft[1]))
             try:
                 if i.mask.get_at((pos[0] - i.rect.topleft[0], pos[1] - i.rect.topleft[1])):
                     return True
@@ -166,27 +166,22 @@ class GameWithDnD(GameWithObjects):
 
     def Events(self, event):
         events = set([pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION])
-        #if event.type in events:
-        #    if not self.itIsRotateBall(event.pos):
-        #        print 1
-        #        return
-        #    elif self.oldpos:
-        #        if not self.itIsRotateBall(self.oldpos):
-        #            print 2
-        #            return
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             click = self.locate(event.pos)
+            self.oldposInBall = False
             if click:
                 self.drag = click[0]
+                self.oldposInBall = True
                 self.drag.active = False
-                self.oldpos = event.pos
-        if event.type == pygame.MOUSEMOTION and event.buttons[0]:
+        elif event.type == pygame.MOUSEMOTION and event.buttons[0]:
             if self.drag:
                 self.drag.pos = event.pos
                 self.drag.speed = event.rel
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.drag.active = True
-            self.drag = None
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            click = self.locate(event.pos)
+            if click and self.oldposInBall:
+                self.drag.active = True
+                self.drag = None
         GameWithObjects.Events(self, event)
 
 Init(SIZE)
