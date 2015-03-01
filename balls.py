@@ -154,9 +154,7 @@ class GameWithDnD(GameWithObjects):
         self.drag = None
 
     def itIsRotateBall(self, pos):
-        #mask
         for i in self.objects:
-            #print((pos[0] - i.rect.topleft[0]), (pos[1] - i.rect.topleft[1]))
             try:
                 if i.mask.get_at((pos[0] - i.rect.topleft[0], pos[1] - i.rect.topleft[1])):
                     return True
@@ -169,7 +167,7 @@ class GameWithDnD(GameWithObjects):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             click = self.locate(event.pos)
             self.oldposInBall = False
-            if click:
+            if click and self.itIsRotateBall(event.pos):
                 self.drag = click[0]
                 self.oldposInBall = True
                 self.drag.active = False
