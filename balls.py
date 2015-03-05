@@ -209,6 +209,10 @@ class GameWithDnDAndGravityAndContact(GameWithDnD):
                 x1_new = v1/(obj[0].mass + obj[1].mass)
                 obj[0].speed = (x0_new*cosTheta - y0_new*sinTheta), (y0_new*cosTheta + x0_new*sinTheta)
                 obj[1].speed = (x1_new*cosTheta - y1_new*sinTheta), (y1_new*cosTheta + x1_new*sinTheta)
+            while obj[0].mask.overlap_area(obj[1].mask, offset):
+                boff0 = obj[0].pos[0] - obj[1].pos[0]
+                boff1 = obj[0].pos[1] - obj[1].pos[1]
+                offset = (int(doff0 + boff0), int(doff1 + boff1))
                 obj[0].pos = (obj[0].pos[0] + obj[0].speed[0], obj[0].pos[1] + obj[0].speed[1])
                 obj[1].pos = (obj[1].pos[0] + obj[1].speed[0], obj[1].pos[1] + obj[1].speed[1])
         GameWithDnD.Logic(self, surface)
@@ -217,9 +221,9 @@ Init(SIZE)
 Game = Universe(50)
 
 Run = GameWithDnDAndGravityAndContact()
-for i in xrange(5):
+for i in xrange(3):
     x, y = random.randrange(screenrect.w), random.randrange(screenrect.h)
-    dx , dy = 0, 0
+    dx , dy = 2*random.random(), 2*random.random()
     angle = 90
     scale = 0.3 + random.random()
     Run.objects.append(RotateBall("ball.gif", (x,y), (dx,dy), angle, scale))
