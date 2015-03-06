@@ -223,7 +223,7 @@ Game = Universe(50)
 Run = GameWithDnDAndGravityAndContact()
 for i in xrange(3):
     x, y = random.randrange(screenrect.w), random.randrange(screenrect.h)
-    dx , dy = 2*random.random(), 2*random.random()
+    dx , dy = 1 + random.random(), 1 + random.random()
     angle = 90
     scale = 0.3 + random.random()
     Run.objects.append(RotateBall("ball.gif", (x,y), (dx,dy), angle, scale))
